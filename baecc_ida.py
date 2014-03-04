@@ -14,6 +14,7 @@ import datetime,time
 from os.path import join, getsize
 import re
 import h5py
+import pandas as pd
 
 f=0
 
@@ -35,9 +36,10 @@ def hotplate(date):
 				time_tmp = time.mktime(time_tmp)
 				time_.append(time_tmp)
 				acc.append(var[-1])
+	
 	#print acc
-	dset = f.create_dataset("hotplate_accumulation", (len(acc),), data=acc)
-	dset = f.create_dataset("hotplate_accumulation_time", (len(time_),), data=time_)
+	d = {'hotplate_time' : time_, 'hotplate_accumulation': acc}
+	return pd.DataFrame(d)
 
 def jeoptic(date):
 	global f
@@ -64,15 +66,19 @@ def jeoptic(date):
 	dset = f.create_dataset("snow_depth", (len(snow),), data=snow)
 	dset = f.create_dataset("snow_depth_time", (len(time_),), data=time_)
 
+def parsivel23(date):
+	global f
+	date_str = time.strftime("%Y%m%d",date)
+	files = glob.glob("data/Parsivel23/"+date_str+"*")	
+	
+
 def great_hdf5(date):
 	global f
 	date_str = time.strftime("%Y%m%d",date)
 	f = h5py.File(date_str + ".hdf5", "w")
 	dset = f.create_dataset("basetime", (1,), dtype='i')
-	#readhotpalte
-	hotplate(date)
-	#read jenoptic
-	jeoptic(date)
+	hotpalte_date = hotplate(date)
+	
 
 def main():
 	tmp=(2014,02,06,0,0,0,0,0,0)
@@ -81,4 +87,4 @@ def main():
 	print date
 	great_hdf5(date)
 
-main()
+#main()
